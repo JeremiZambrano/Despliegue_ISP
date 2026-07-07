@@ -1,13 +1,14 @@
 FROM node:22
 WORKDIR /usr/src/app
 
-# Fija una versión de npm sin el bug de "Exit handler never called"
 RUN npm install -g npm@10.8.2
 
 COPY package*.json ./
 
-# Reintentos y timeouts más generosos por si hay problemas de red
-RUN npm install --no-fund --no-audit \
+# Limpiamos cualquier instalación previa corrupta y usamos npm ci (más estricto y confiable que npm install)
+RUN rm -rf node_modules && \
+    npm cache clean --force && \
+    npm ci --no-fund --no-audit \
     --fetch-retries=5 \
     --fetch-retry-mintimeout=20000 \
     --fetch-timeout=600000
